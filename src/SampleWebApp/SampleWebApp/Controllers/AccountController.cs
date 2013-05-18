@@ -47,7 +47,7 @@ namespace SampleWebApp.Controllers
 		[HttpPost]
 		[AllowAnonymous]
 		[ValidateAntiForgeryToken]
-		public ActionResult Login(LoginModel model, string returnUrl)
+		public ActionResult Login(LoginViewModel model, string returnUrl)
 		{
 			if (ModelState.IsValid && WebSecurity.Login(model.UserName, model.Password, persistCookie: model.RememberMe))
 			{
@@ -86,7 +86,7 @@ namespace SampleWebApp.Controllers
 		[HttpPost]
 		[AllowAnonymous]
 		[ValidateAntiForgeryToken]
-		public ActionResult Register(RegisterModel model)
+		public ActionResult Register(RegisterViewModel model)
 		{
 			if (ModelState.IsValid)
 			{
@@ -156,7 +156,7 @@ namespace SampleWebApp.Controllers
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public ActionResult Manage(LocalPasswordModel model)
+		public ActionResult Manage(LocalPasswordViewModel model)
 		{
 			bool hasLocalAccount = OAuthWebSecurity.HasLocalAccount(WebSecurity.GetUserId(WebSecurity.CurrentUser.Identity.Name));
 			ViewBag.HasLocalPassword = hasLocalAccount;
@@ -254,7 +254,7 @@ namespace SampleWebApp.Controllers
 				string loginData = OAuthWebSecurity.SerializeProviderUserId(result.Provider, result.ProviderUserId);
 				ViewBag.ProviderDisplayName = OAuthWebSecurity.GetOAuthClientData(result.Provider).DisplayName;
 				ViewBag.ReturnUrl = returnUrl;
-				return View("ExternalLoginConfirmation", new RegisterExternalLoginModel { UserName = result.UserName, ExternalLoginData = loginData });
+				return View("ExternalLoginConfirmation", new RegisterExternalLoginViewModel { UserName = result.UserName, ExternalLoginData = loginData });
 			}
 		}
 
@@ -264,7 +264,7 @@ namespace SampleWebApp.Controllers
 		[HttpPost]
 		[AllowAnonymous]
 		[ValidateAntiForgeryToken]
-		public ActionResult ExternalLoginConfirmation(RegisterExternalLoginModel model, string returnUrl)
+		public ActionResult ExternalLoginConfirmation(RegisterExternalLoginViewModel model, string returnUrl)
 		{
 			string provider = null;
 			string providerUserId = null;
@@ -325,12 +325,12 @@ namespace SampleWebApp.Controllers
 		public ActionResult RemoveExternalLogins()
 		{
 			ICollection<OAuthAccount> accounts = OAuthWebSecurity.GetAccountsFromUserName(WebSecurity.CurrentUser.Identity.Name);
-			List<ExternalLogin> externalLogins = new List<ExternalLogin>();
+			List<ExternalLoginViewModel> externalLogins = new List<ExternalLoginViewModel>();
 			foreach (OAuthAccount account in accounts)
 			{
 				AuthenticationClientData clientData = OAuthWebSecurity.GetOAuthClientData(account.Provider);
 
-				externalLogins.Add(new ExternalLogin
+				externalLogins.Add(new ExternalLoginViewModel
 				{
 					Provider = account.Provider,
 					ProviderDisplayName = clientData.DisplayName,

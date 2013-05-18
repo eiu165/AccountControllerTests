@@ -74,7 +74,7 @@
 			string password = "password";
 
 			WebSecurity.Setup(s => s.Login(userName, password, false)).Returns(true);
-			var model = new LoginModel
+			var model = new LoginViewModel
 			{
 				UserName = userName,
 				Password = password
@@ -93,7 +93,7 @@
 			string password = "password";
 
 			WebSecurity.Setup(s => s.Login(userName, password, false)).Returns(false);
-			var model = new LoginModel
+			var model = new LoginViewModel
 			{
 				UserName = userName,
 				Password = password
@@ -130,7 +130,7 @@
 			WebSecurity.Setup(s => s.CreateUserAndAccount(userName, password, null, false)).Returns(userName);
 			WebSecurity.Setup(s => s.Login(userName, password, false)).Returns(true);
 
-			var model = new RegisterModel
+			var model = new RegisterViewModel
 			{
 				UserName = userName,
 				Password = password,
@@ -154,7 +154,7 @@
 			WebSecurity.Setup(s => s.Login(userName, password, false)).Throws(
 				new MembershipCreateUserException(MembershipCreateStatus.InvalidEmail));
 
-			var model = new RegisterModel
+			var model = new RegisterViewModel
 			{
 				UserName = userName,
 				Password = password,

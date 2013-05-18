@@ -168,9 +168,14 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\AccountModels.cs" />
+    <Compile Include="Models\ExternalLoginViewModel.cs" />
     <Compile Include="Models\IOAuthWebSecurity.cs" />
     <Compile Include="Models\IWebSecurity.cs" />
+    <Compile Include="Models\LocalPasswordViewModel.cs" />
+    <Compile Include="Models\LoginViewModel.cs" />
     <Compile Include="Models\OAuthWebSecurityWrapper.cs" />
+    <Compile Include="Models\RegisterExternalLoginViewModel.cs" />
+    <Compile Include="Models\RegisterViewModel.cs" />
     <Compile Include="Models\WebSecurityWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
