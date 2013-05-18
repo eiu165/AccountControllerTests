@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Web;
 using System.Web.Http;
@@ -16,9 +17,11 @@ namespace SampleWebApp
 	public class MvcApplication : System.Web.HttpApplication
 	{
 		protected void Application_Start()
-		{
-
-            WebSecurity.InitializeDatabaseConnection("DefaultConnection", "UserProfile", "UserId", "UserName", autoCreateTables: true);
+        {
+            string connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
+            string providerName = ConfigurationManager.ConnectionStrings["DefaultConnection"].ProviderName;
+            //WebSecurity.InitializeDatabaseConnection("DefaultConnection", "UserProfile", "UserId", "UserName", autoCreateTables: true);
+            WebSecurity.InitializeDatabaseConnection(connectionString: connectionString, providerName: providerName, userTableName: "UserProfile", userIdColumn: "UserId", userNameColumn: "UserName", autoCreateTables: false);
 
 			AreaRegistration.RegisterAllAreas();
 

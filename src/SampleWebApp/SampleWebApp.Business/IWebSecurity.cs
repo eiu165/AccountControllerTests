@@ -10,7 +10,7 @@ namespace SampleWebApp.Business
 		int GetUserId(string userName);
 		bool ChangePassword(string userName, string currentPassword, string newPassword);
 		string CreateAccount(string userName, string password, bool requireConfirmationToken = false);
-
+        //void InitializeDatabaseConnection(string connStringName, string UserTable, string UserIdColumn, string UserNameColumnName );
 		IPrincipal CurrentUser { get; }
 	}
 }
