@@ -62,6 +62,18 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SampleApp.Enitiy\SampleApp.Enitiy.csproj">
+      <Project>{e4d9ba34-3659-42ef-9cfe-b10a26408e86}</Project>
+      <Name>SampleApp.Enitiy</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SampleApp.Repository\SampleApp.Repository.csproj">
+      <Project>{f8ff7959-0640-4705-8524-6062b4407cac}</Project>
+      <Name>SampleApp.Repository</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SampleWebApp.Business\SampleWebApp.Business.csproj">
+      <Project>{8d2abde7-1c7d-4268-9a95-9bc36985f6ae}</Project>
+      <Name>SampleWebApp.Business</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SampleWebApp\SampleWebApp.csproj">
       <Project>{d37b4cca-eee0-44b3-becb-f9480c4998fd}</Project>
       <Name>SampleWebApp</Name>

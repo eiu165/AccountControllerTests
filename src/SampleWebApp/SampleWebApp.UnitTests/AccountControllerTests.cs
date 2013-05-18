@@ -13,6 +13,7 @@
 	using System.Security.Principal;
 	using System.Collections.Generic;
 	using Microsoft.Web.WebPages.OAuth;
+    using SampleWebApp.Business;
 
 	public class AccountControllerTests
 	{

@@ -8,13 +8,13 @@ using System.Web.Security;
 using DotNetOpenAuth.AspNet;
 using Microsoft.Web.WebPages.OAuth;
 using WebMatrix.WebData;
-using SampleWebApp.Filters;
 using SampleWebApp.Models;
+using SampleWebApp.Business;
+using SampleWebApp.Infastructure;
 
 namespace SampleWebApp.Controllers
 {
 	[Authorize]
-	[InitializeSimpleMembership]
 	public class AccountController : Controller
 	{
 		private IWebSecurity _webSecurity { get; set; }
@@ -277,26 +277,26 @@ namespace SampleWebApp.Controllers
 			if (ModelState.IsValid)
 			{
 				// Insert a new user into the database
-				using (UsersContext db = new UsersContext())
-				{
-					UserProfile user = db.UserProfiles.FirstOrDefault(u => u.UserName.ToLower() == model.UserName.ToLower());
-					// Check if user already exists
-					if (user == null)
-					{
-						// Insert name into the profile table
-						db.UserProfiles.Add(new UserProfile { UserName = model.UserName });
-						db.SaveChanges();
+                //using (UsersContext db = new UsersContext())
+                //{
+                //    UserProfile user = db.UserProfiles.FirstOrDefault(u => u.UserName.ToLower() == model.UserName.ToLower());
+                //    // Check if user already exists
+                //    if (user == null)
+                //    {
+                //        // Insert name into the profile table
+                //        db.UserProfiles.Add(new UserProfile { UserName = model.UserName });
+                //        db.SaveChanges();
 
-						_oAuthWebSecurity.CreateOrUpdateAccount(provider, providerUserId, model.UserName);
-						_oAuthWebSecurity.Login(provider, providerUserId, createPersistentCookie: false);
+                //        _oAuthWebSecurity.CreateOrUpdateAccount(provider, providerUserId, model.UserName);
+                //        _oAuthWebSecurity.Login(provider, providerUserId, createPersistentCookie: false);
 
-						return RedirectToLocal(returnUrl);
-					}
-					else
-					{
-						ModelState.AddModelError("UserName", "User name already exists. Please enter a different user name.");
-					}
-				}
+                //        return RedirectToLocal(returnUrl);
+                //    }
+                //    else
+                //    {
+                //        ModelState.AddModelError("UserName", "User name already exists. Please enter a different user name.");
+                //    }
+                //}
 			}
 
 			ViewBag.ProviderDisplayName = _oAuthWebSecurity.GetOAuthClientData(provider).DisplayName;
