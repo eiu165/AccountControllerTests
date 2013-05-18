@@ -10,11 +10,11 @@ using Microsoft.Web.WebPages.OAuth;
 using WebMatrix.WebData;
 using SampleWebApp.Models;
 using SampleWebApp.Business;
-using SampleWebApp.Infastructure;
+using SampleWebApp.Infastructure; 
 
 namespace SampleWebApp.Controllers
 {
-	[Authorize]
+	[Authorize]  
 	public class AccountController : Controller
 	{
 		private IWebSecurity _webSecurity { get; set; }
