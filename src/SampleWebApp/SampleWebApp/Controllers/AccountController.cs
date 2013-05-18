@@ -17,8 +17,8 @@ namespace SampleWebApp.Controllers
 	[InitializeSimpleMembership]
 	public class AccountController : Controller
 	{
-		private IWebSecurity WebSecurity { get; set; }
-		private IOAuthWebSecurity OAuthWebSecurity { get; set; }
+		private IWebSecurity _webSecurity { get; set; }
+		private IOAuthWebSecurity _oAuthWebSecurity { get; set; }
 
 		public AccountController()
 			: this(new WebSecurityWrapper(), new OAuthWebSecurityWrapper())
@@ -27,8 +27,8 @@ namespace SampleWebApp.Controllers
 
 		public AccountController(IWebSecurity webSecurity, IOAuthWebSecurity oAuthWebSecurity)
 		{
-			WebSecurity = webSecurity;
-			OAuthWebSecurity = oAuthWebSecurity;
+			_webSecurity = webSecurity;
+			_oAuthWebSecurity = oAuthWebSecurity;
 		}
 
 		//
@@ -49,7 +49,7 @@ namespace SampleWebApp.Controllers
 		[ValidateAntiForgeryToken]
 		public ActionResult Login(LoginViewModel model, string returnUrl)
 		{
-			if (ModelState.IsValid && WebSecurity.Login(model.UserName, model.Password, persistCookie: model.RememberMe))
+			if (ModelState.IsValid && _webSecurity.Login(model.UserName, model.Password, persistCookie: model.RememberMe))
 			{
 				return RedirectToLocal(returnUrl);
 			}
@@ -66,7 +66,7 @@ namespace SampleWebApp.Controllers
 		[ValidateAntiForgeryToken]
 		public ActionResult LogOff()
 		{
-			WebSecurity.Logout();
+			_webSecurity.Logout();
 
 			return RedirectToAction("Index", "Home");
 		}
@@ -93,8 +93,8 @@ namespace SampleWebApp.Controllers
 				// Attempt to register the user
 				try
 				{
-					WebSecurity.CreateUserAndAccount(model.UserName, model.Password);
-					WebSecurity.Login(model.UserName, model.Password);
+					_webSecurity.CreateUserAndAccount(model.UserName, model.Password);
+					_webSecurity.Login(model.UserName, model.Password);
 					return RedirectToAction("Index", "Home");
 				}
 				catch (MembershipCreateUserException e)
@@ -114,19 +114,19 @@ namespace SampleWebApp.Controllers
 		[ValidateAntiForgeryToken]
 		public ActionResult Disassociate(string provider, string providerUserId)
 		{
-			string ownerAccount = OAuthWebSecurity.GetUserName(provider, providerUserId);
+			string ownerAccount = _oAuthWebSecurity.GetUserName(provider, providerUserId);
 			ManageMessageId? message = null;
 
 			// Only disassociate the account if the currently logged in user is the owner
-			if (ownerAccount == WebSecurity.CurrentUser.Identity.Name)
+			if (ownerAccount == _webSecurity.CurrentUser.Identity.Name)
 			{
 				// Use a transaction to prevent the user from deleting their last login credential
 				using (var scope = new TransactionScope(TransactionScopeOption.Required, new TransactionOptions { IsolationLevel = IsolationLevel.Serializable }))
 				{
-					bool hasLocalAccount = OAuthWebSecurity.HasLocalAccount(WebSecurity.GetUserId(WebSecurity.CurrentUser.Identity.Name));
-					if (hasLocalAccount || OAuthWebSecurity.GetAccountsFromUserName(WebSecurity.CurrentUser.Identity.Name).Count > 1)
+					bool hasLocalAccount = _oAuthWebSecurity.HasLocalAccount(_webSecurity.GetUserId(_webSecurity.CurrentUser.Identity.Name));
+					if (hasLocalAccount || _oAuthWebSecurity.GetAccountsFromUserName(_webSecurity.CurrentUser.Identity.Name).Count > 1)
 					{
-						OAuthWebSecurity.DeleteAccount(provider, providerUserId);
+						_oAuthWebSecurity.DeleteAccount(provider, providerUserId);
 						scope.Complete();
 						message = ManageMessageId.RemoveLoginSuccess;
 					}
@@ -146,7 +146,7 @@ namespace SampleWebApp.Controllers
 				: message == ManageMessageId.SetPasswordSuccess ? "Your password has been set."
 				: message == ManageMessageId.RemoveLoginSuccess ? "The external login was removed."
 				: "";
-			ViewBag.HasLocalPassword = OAuthWebSecurity.HasLocalAccount(WebSecurity.GetUserId(WebSecurity.CurrentUser.Identity.Name));
+			ViewBag.HasLocalPassword = _oAuthWebSecurity.HasLocalAccount(_webSecurity.GetUserId(_webSecurity.CurrentUser.Identity.Name));
 			ViewBag.ReturnUrl = Url.Action("Manage");
 			return View();
 		}
@@ -158,7 +158,7 @@ namespace SampleWebApp.Controllers
 		[ValidateAntiForgeryToken]
 		public ActionResult Manage(LocalPasswordViewModel model)
 		{
-			bool hasLocalAccount = OAuthWebSecurity.HasLocalAccount(WebSecurity.GetUserId(WebSecurity.CurrentUser.Identity.Name));
+			bool hasLocalAccount = _oAuthWebSecurity.HasLocalAccount(_webSecurity.GetUserId(_webSecurity.CurrentUser.Identity.Name));
 			ViewBag.HasLocalPassword = hasLocalAccount;
 			ViewBag.ReturnUrl = Url.Action("Manage");
 			if (hasLocalAccount)
@@ -169,7 +169,7 @@ namespace SampleWebApp.Controllers
 					bool changePasswordSucceeded;
 					try
 					{
-						changePasswordSucceeded = WebSecurity.ChangePassword(WebSecurity.CurrentUser.Identity.Name, model.OldPassword, model.NewPassword);
+						changePasswordSucceeded = _webSecurity.ChangePassword(_webSecurity.CurrentUser.Identity.Name, model.OldPassword, model.NewPassword);
 					}
 					catch (Exception)
 					{
@@ -200,7 +200,7 @@ namespace SampleWebApp.Controllers
 				{
 					try
 					{
-						WebSecurity.CreateAccount(WebSecurity.CurrentUser.Identity.Name, model.NewPassword);
+						_webSecurity.CreateAccount(_webSecurity.CurrentUser.Identity.Name, model.NewPassword);
 						return RedirectToAction("Manage", new { Message = ManageMessageId.SetPasswordSuccess });
 					}
 					catch (Exception e)
@@ -222,7 +222,7 @@ namespace SampleWebApp.Controllers
 		[ValidateAntiForgeryToken]
 		public ActionResult ExternalLogin(string provider, string returnUrl)
 		{
-			return new ExternalLoginResult(provider, Url.Action("ExternalLoginCallback", new { ReturnUrl = returnUrl }), this.OAuthWebSecurity);
+			return new ExternalLoginResult(provider, Url.Action("ExternalLoginCallback", new { ReturnUrl = returnUrl }), this._oAuthWebSecurity);
 		}
 
 		//
@@ -231,28 +231,28 @@ namespace SampleWebApp.Controllers
 		[AllowAnonymous]
 		public ActionResult ExternalLoginCallback(string returnUrl)
 		{
-			AuthenticationResult result = OAuthWebSecurity.VerifyAuthentication(Url.Action("ExternalLoginCallback", new { ReturnUrl = returnUrl }));
+			AuthenticationResult result = _oAuthWebSecurity.VerifyAuthentication(Url.Action("ExternalLoginCallback", new { ReturnUrl = returnUrl }));
 			if (!result.IsSuccessful)
 			{
 				return RedirectToAction("ExternalLoginFailure");
 			}
 
-			if (OAuthWebSecurity.Login(result.Provider, result.ProviderUserId, createPersistentCookie: false))
+			if (_oAuthWebSecurity.Login(result.Provider, result.ProviderUserId, createPersistentCookie: false))
 			{
 				return RedirectToLocal(returnUrl);
 			}
 
-			if (WebSecurity.CurrentUser.Identity.IsAuthenticated)
+			if (_webSecurity.CurrentUser.Identity.IsAuthenticated)
 			{
 				// If the current user is logged in add the new account
-				OAuthWebSecurity.CreateOrUpdateAccount(result.Provider, result.ProviderUserId, WebSecurity.CurrentUser.Identity.Name);
+				_oAuthWebSecurity.CreateOrUpdateAccount(result.Provider, result.ProviderUserId, _webSecurity.CurrentUser.Identity.Name);
 				return RedirectToLocal(returnUrl);
 			}
 			else
 			{
 				// User is new, ask for their desired membership name
-				string loginData = OAuthWebSecurity.SerializeProviderUserId(result.Provider, result.ProviderUserId);
-				ViewBag.ProviderDisplayName = OAuthWebSecurity.GetOAuthClientData(result.Provider).DisplayName;
+				string loginData = _oAuthWebSecurity.SerializeProviderUserId(result.Provider, result.ProviderUserId);
+				ViewBag.ProviderDisplayName = _oAuthWebSecurity.GetOAuthClientData(result.Provider).DisplayName;
 				ViewBag.ReturnUrl = returnUrl;
 				return View("ExternalLoginConfirmation", new RegisterExternalLoginViewModel { UserName = result.UserName, ExternalLoginData = loginData });
 			}
@@ -269,7 +269,7 @@ namespace SampleWebApp.Controllers
 			string provider = null;
 			string providerUserId = null;
 
-			if (WebSecurity.CurrentUser.Identity.IsAuthenticated || !OAuthWebSecurity.TryDeserializeProviderUserId(model.ExternalLoginData, out provider, out providerUserId))
+			if (_webSecurity.CurrentUser.Identity.IsAuthenticated || !_oAuthWebSecurity.TryDeserializeProviderUserId(model.ExternalLoginData, out provider, out providerUserId))
 			{
 				return RedirectToAction("Manage");
 			}
@@ -287,8 +287,8 @@ namespace SampleWebApp.Controllers
 						db.UserProfiles.Add(new UserProfile { UserName = model.UserName });
 						db.SaveChanges();
 
-						OAuthWebSecurity.CreateOrUpdateAccount(provider, providerUserId, model.UserName);
-						OAuthWebSecurity.Login(provider, providerUserId, createPersistentCookie: false);
+						_oAuthWebSecurity.CreateOrUpdateAccount(provider, providerUserId, model.UserName);
+						_oAuthWebSecurity.Login(provider, providerUserId, createPersistentCookie: false);
 
 						return RedirectToLocal(returnUrl);
 					}
@@ -299,7 +299,7 @@ namespace SampleWebApp.Controllers
 				}
 			}
 
-			ViewBag.ProviderDisplayName = OAuthWebSecurity.GetOAuthClientData(provider).DisplayName;
+			ViewBag.ProviderDisplayName = _oAuthWebSecurity.GetOAuthClientData(provider).DisplayName;
 			ViewBag.ReturnUrl = returnUrl;
 			return View(model);
 		}
@@ -318,17 +318,17 @@ namespace SampleWebApp.Controllers
 		public ActionResult ExternalLoginsList(string returnUrl)
 		{
 			ViewBag.ReturnUrl = returnUrl;
-			return PartialView("_ExternalLoginsListPartial", OAuthWebSecurity.RegisteredClientData);
+			return PartialView("_ExternalLoginsListPartial", _oAuthWebSecurity.RegisteredClientData);
 		}
 
 		[ChildActionOnly]
 		public ActionResult RemoveExternalLogins()
 		{
-			ICollection<OAuthAccount> accounts = OAuthWebSecurity.GetAccountsFromUserName(WebSecurity.CurrentUser.Identity.Name);
+			ICollection<OAuthAccount> accounts = _oAuthWebSecurity.GetAccountsFromUserName(_webSecurity.CurrentUser.Identity.Name);
 			List<ExternalLoginViewModel> externalLogins = new List<ExternalLoginViewModel>();
 			foreach (OAuthAccount account in accounts)
 			{
-				AuthenticationClientData clientData = OAuthWebSecurity.GetOAuthClientData(account.Provider);
+				AuthenticationClientData clientData = _oAuthWebSecurity.GetOAuthClientData(account.Provider);
 
 				externalLogins.Add(new ExternalLoginViewModel
 				{
@@ -338,7 +338,7 @@ namespace SampleWebApp.Controllers
 				});
 			}
 
-			ViewBag.ShowRemoveButton = externalLogins.Count > 1 || OAuthWebSecurity.HasLocalAccount(WebSecurity.GetUserId(WebSecurity.CurrentUser.Identity.Name));
+			ViewBag.ShowRemoveButton = externalLogins.Count > 1 || _oAuthWebSecurity.HasLocalAccount(_webSecurity.GetUserId(_webSecurity.CurrentUser.Identity.Name));
 			return PartialView("_RemoveExternalLoginsPartial", externalLogins);
 		}
 
