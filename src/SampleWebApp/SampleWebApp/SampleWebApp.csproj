@@ -20,6 +20,8 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -167,16 +169,13 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\AccountModels.cs" />
+    <Compile Include="Infastructure\OAuthWebSecurityWrapper.cs" />
+    <Compile Include="Infastructure\WebSecurityWrapper.cs" />
     <Compile Include="Models\ExternalLoginViewModel.cs" />
-    <Compile Include="Models\IOAuthWebSecurity.cs" />
-    <Compile Include="Models\IWebSecurity.cs" />
     <Compile Include="Models\LocalPasswordViewModel.cs" />
     <Compile Include="Models\LoginViewModel.cs" />
-    <Compile Include="Models\OAuthWebSecurityWrapper.cs" />
     <Compile Include="Models\RegisterExternalLoginViewModel.cs" />
     <Compile Include="Models\RegisterViewModel.cs" />
-    <Compile Include="Models\WebSecurityWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -297,6 +296,20 @@
   <ItemGroup>
     <Content Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SampleApp.Enitiy\SampleApp.Enitiy.csproj">
+      <Project>{e4d9ba34-3659-42ef-9cfe-b10a26408e86}</Project>
+      <Name>SampleApp.Enitiy</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SampleApp.Repository\SampleApp.Repository.csproj">
+      <Project>{f8ff7959-0640-4705-8524-6062b4407cac}</Project>
+      <Name>SampleApp.Repository</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SampleWebApp.Business\SampleWebApp.Business.csproj">
+      <Project>{8d2abde7-1c7d-4268-9a95-9bc36985f6ae}</Project>
+      <Name>SampleWebApp.Business</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
@@ -325,6 +338,7 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
+  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
